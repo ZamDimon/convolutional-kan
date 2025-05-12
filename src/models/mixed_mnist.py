@@ -12,7 +12,7 @@ from kan import *
 from src.layers.ckan_layer import KANConv2d
 
 
-class MNISTFullyCKAN(nn.Module):
+class MNISTMixedCKAN(nn.Module):
     """
     A simple CNN model for MNIST classification using the KANConv2d layer.
     """
@@ -22,17 +22,15 @@ class MNISTFullyCKAN(nn.Module):
         Initializes the KANConv2d model for MNIST classification.
         """
         
-        super(MNISTFullyCKAN, self).__init__()
+        super(MNISTMixedCKAN, self).__init__()
         
-        self.conv1 = KANConv2d(in_channels=1, out_channels=4, kernel_size=3, stride=1, padding=1, spline_points=3, spline_degree=3)
+        self.conv1 = KANConv2d(in_channels=1, out_channels=8, kernel_size=3, stride=1, padding=1, spline_points=3, spline_degree=3)
         self.maxpool1 = nn.MaxPool2d(kernel_size=2, stride=2)
-        self.conv2 = KANConv2d(in_channels=4, out_channels=8, kernel_size=3, stride=1, padding=1, spline_points=3, spline_degree=3)
+        self.conv2 = KANConv2d(in_channels=8, out_channels=16, kernel_size=3, stride=1, padding=1, spline_points=5, spline_degree=3)
         self.maxpool2 = nn.MaxPool2d(kernel_size=2, stride=2)
-        self.conv3 = KANConv2d(in_channels=8, out_channels=16, kernel_size=3, stride=1, padding=1, spline_points=3, spline_degree=3)
-        self.maxpool3 = nn.MaxPool2d(kernel_size=2, stride=2)
-        self.conv4 = KANConv2d(in_channels=16, out_channels=16, kernel_size=2, stride=1, padding=1, spline_points=3, spline_degree=3)
+        self.conv3 = KANConv2d(in_channels=16, out_channels=24, kernel_size=3, stride=1, padding=1, spline_points=5, spline_degree=3)
         self.flatten = nn.Flatten()
-        self.kan = KAN(width=[256,10], grid=3, k=3)
+        self.fc = nn.Linear(8*8*24, 10)
 
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -44,9 +42,7 @@ class MNISTFullyCKAN(nn.Module):
         x = self.conv2(x)
         x = self.maxpool2(x)
         x = self.conv3(x)
-        x = self.maxpool3(x)
-        x = self.conv4(x)
         x = self.flatten(x)
-        x = self.kan(x)
+        x = self.fc(x)
         
         return x

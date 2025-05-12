@@ -104,21 +104,9 @@ class BSpline(nn.Module):
                 den1 = grid_local[i+d] - grid_local[i]
                 den2 = grid_local[i+d+1] - grid_local[i+1]
 
-                # Calculate b1
-                # Note: Original code divides directly. If den1 can be zero, this can lead to inf/nan.
-                # This fix focuses on the autograd error, not numerical stability of division by zero.
-                if den1 == 0: # Avoid division by zero; result of this term is effectively 0 if numerator is finite.
-                              # Or handle as per specific B-spline convention for coincident knots.
-                              # For now, if den1 is 0, b1 will be 0 assuming basis_i_prev_d is not inf/nan.
-                    b1 = torch.zeros_like(x)
-                else:
-                    b1 = (x - grid_local[i]) * basis_i_prev_d / den1
-                
-                # Calculate b2
-                if den2 == 0: # Similar handling for den2
-                    b2 = torch.zeros_like(x)
-                else:
-                    b2 = (grid_local[i+d+1] - x) * basis_i_plus_1_prev_d / den2
+                # Calculate b1 and b2
+                b1 = (x - grid_local[i]) * basis_i_prev_d / den1
+                b2 = (grid_local[i+d+1] - x) * basis_i_plus_1_prev_d / den2
                 
                 # The inplace copy operation was the source of the autograd error.
                 # By using cloned inputs for b1 and b2, the original `basis` tensor's

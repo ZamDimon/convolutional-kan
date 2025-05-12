@@ -10,12 +10,14 @@ import torch
 import torch.nn as nn
 
 from src.models.fully_kan_mnist import MNISTFullyCKAN
+from src.models.mixed_mnist import MNISTMixedCKAN
 from src.models.mlp_mnist import MNISTMLP
 
 from src.datasets.mnist import prepare_mnist
 from src.datasets.cifar10 import prepare_cifar10
 from src.train import ModelTrainer
 from src.visualize import ConvolutionVisualizer
+from src.utils import print_model_summary
 
 
 def main() -> None:
@@ -25,14 +27,15 @@ def main() -> None:
     """
     
     # Hyperparameters
-    LEARNING_RATE = 0.001 # For Adam
+    LEARNING_RATE = 0.005 # For Adam
     
     # Device configuration
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
 
     # Instantiate the model, dataset optimizer, and loss function
-    model = MNISTFullyCKAN().to(device)
+    model = MNISTMixedCKAN().to(device)
+    print_model_summary(model)
     #model.load_state_dict(torch.load('models/mlp-mnist/model_epoch_10.pth', weights_only=True))
     train, test = prepare_cifar10(batch_size=32, test_batch_size=32, device=device)
     optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
